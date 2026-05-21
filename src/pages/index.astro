@@ -5,7 +5,7 @@ import mapElite from "../assets/map_elite.png";
 import mapEnemy from "../assets/map_monster.png";
 import mapEvent from "../assets/map_unknown.png";
 import mapEventEnemy from "../assets/map_unknown_monster.png";
-import potion from "../assets/block_potion.png"
+import potion from "../assets/block_potion.png";
 ---
 
 <!doctype html>
@@ -21,32 +21,32 @@ import potion from "../assets/block_potion.png"
 	<body class="bg-pink-300">
 		Past Floors of the act
 		<div class="flex flex-row">
-			<div onclick={`createNode('enemy', '${mapEnemy.src}', true)`}>
+			<div onclick={`createNode(0, '${mapEnemy.src}', true)`}>
 				<Mapicon icon={mapEnemy.src} />
 			</div>
-			<div onclick={`createNode('elite', '${mapElite.src}', true)`}>
+			<div onclick={`createNode(1, '${mapElite.src}', true)`}>
 				<Mapicon icon={mapElite.src} />
 			</div>
-			<div onclick={`createNode('event', '${mapEvent.src}', true)`}>
+			<div onclick={`createNode(2, '${mapEvent.src}', true)`}>
 				<Mapicon icon={mapEvent.src} />
 			</div>
-			<div onclick={`createNode('eventE', '${mapEventEnemy.src}', true)`}>
+			<div onclick={`createNode(3, '${mapEventEnemy.src}', true)`}>
 				<Mapicon icon={mapEventEnemy.src} />
 			</div>
-			<div onclick={`createNode('potion', '${potion.src}', true)`}>
+			<div onclick={`addPotion('${potion.src}')`}>
 				<Mapicon icon={potion.src} />
 			</div>
 		</div>
 		<div class="flex flex-wrap" id="past"></div>
 		Upcoming floors
 		<div class="flex flex-row">
-			<div onclick="createNode('enemy', mapEnemy.src, false)">
+			<div onclick={`createNode(0, '${mapEnemy.src}', false)`}>
 				<Mapicon icon={mapEnemy.src} />
 			</div>
-			<div onclick="createNode('elite', mapElite.src, false)">
+			<div onclick={`createNode(1, '${mapElite.src}', false)`}>
 				<Mapicon icon={mapElite.src} />
 			</div>
-			<div onclick="createNode('event', mapEvent.src, false)">
+			<div onclick={`createNode(2, '${mapEvent.src}', false)`}>
 				<Mapicon icon={mapEvent.src} />
 			</div>
 		</div>
@@ -67,15 +67,98 @@ import potion from "../assets/block_potion.png"
 </style>
 
 <script is:inline>
+	let pastlist = [];
+	let postlist = [];
+	let counter = 0;
+
 	function createNode(type, src, before) {
-		let place = document.getElementById("past");
-		if (!before) {
+		let id = counter;
+		counter += 1;
+		let place;
+		if (before) {
+			place = document.getElementById("past");
+			pastlist.push({ type, id, potion: false });
+		} else {
 			place = document.getElementById("upcoming");
+			postlist.push({ type, id, potion: false });
 		}
+		let box = document.createElement("div");
+		box.className = "w-27 flex items-center justify-center";
+
 		let img = document.createElement("img");
 		img.src = src;
+		img.className = "h-20";
+
+		box.addEventListener("click", () => {
+			box.remove();
+
+			pastlist = pastlist.filter((f) => f.id !== id);
+			postlist = postlist.filter((f) => f.id !== id);
+			console.log(pastlist, postlist);
+		});
+
 		if (place != null) {
-			place.appendChild(img);
+			box.appendChild(img);
+			place.appendChild(box);
+			console.log(pastProbabilities())
 		}
+	}
+	function addPotion(src) {
+		if (
+			pastlist.length == 0 ||
+			pastlist[pastlist.length - 1].potion == true
+		) {
+			return;
+		}
+		let last = pastlist[pastlist.length - 1];
+		let place = document.getElementById("past");
+		let lastBox = place.children[place.children.length - 1];
+
+		last.potion = true;
+		lastBox.style.position = "relative";
+
+		let img = document.createElement("img");
+		img.src = src;
+		img.className = "absolute -bottom-2 -right-2 h-13";
+
+		img.addEventListener("click", (e) => {
+			e.stopPropagation();
+			img.remove();
+			last.potion = false;
+		});
+
+		lastBox.appendChild(img);
+	}
+	function pastProbabilities() {
+		
+		let chance = [[1, 0.4]]
+		for(let node of pastlist){
+			if (node.potion == false){
+				for(let i of chance){
+					console.log(i)
+					i[1] += 0.1
+				}
+			}
+			else if (node.type != 1){
+				for(let i of chance){
+					i[1] -= 0.1
+				}
+			}
+			else{
+				let dupe = []
+				for(let i of chance){
+					let newdupe = []
+					newdupe.append(i[0])
+					newdupe.append(i[1])
+					i[0] *= 0.875
+					i[1] -= 0.11
+					newdupe[0] *= 0.125
+					newdupe[1] += 0.1					
+				}
+				chance += dupe
+			}
+		}
+		return chance
+
 	}
 </script>
