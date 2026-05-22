@@ -19,43 +19,70 @@ import potion from "../assets/block_potion.png";
 	</head>
 
 	<body class="bg-olive-400">
-		Past Floors of the act. 
-		<br>Include past floors of only this act, and include when the potions were dropped.<br> You can ignore shops, treasures, and rest sites. <br>Include events and whether or not they are encounters. Shop and treasure events should be treated as normal
-		<div class="flex flex-row justify-center">
-			<div onclick={`createNode(0, '${mapEnemy.src}', true)`}>
-				<Mapicon icon={mapEnemy.src} />
+		<div class="flex flex-row">
+			<div class="bg-blue-100">
+				Past Floors of the act.
+				<br />Include past floors of only this act, and include when the
+				potions were dropped.<br /> You can ignore shops, treasures, and rest
+				sites. <br />Include events and whether or not they are
+				encounters. Shop and treasure events should be treated as normal
+				<div class="flex flex-row justify-center">
+					<div onclick={`createNode(0, '${mapEnemy.src}', true)`}>
+						<Mapicon icon={mapEnemy.src} />
+					</div>
+					<div onclick={`createNode(1, '${mapElite.src}', true)`}>
+						<Mapicon icon={mapElite.src} />
+					</div>
+					<div onclick={`createNode(2, '${mapEvent.src}', true)`}>
+						<Mapicon icon={mapEvent.src} />
+					</div>
+					<div
+						onclick={`createNode(3, '${mapEventEnemy.src}', true)`}
+					>
+						<Mapicon icon={mapEventEnemy.src} />
+					</div>
+					<div onclick={`addPotion('${potion.src}')`}>
+						<Mapicon icon={potion.src} />
+					</div>
+				</div>
+				<div
+					class="flex flex-wrap justify-center px-[5%] min-h-40 content-start"
+					id="past"
+				>
+				</div>
+				Upcoming floors
+				<br />Include all floors up until the encounter you are
+				interested in
+				<div class="flex flex-row justify-center">
+					<div onclick={`createNode(0, '${mapEnemy.src}', false)`}>
+						<Mapicon icon={mapEnemy.src} />
+					</div>
+					<div onclick={`createNode(1, '${mapElite.src}', false)`}>
+						<Mapicon icon={mapElite.src} />
+					</div>
+					<div onclick={`createNode(2, '${mapEvent.src}', false)`}>
+						<Mapicon icon={mapEvent.src} />
+					</div>
+				</div>
+
+				<div
+					class="flex flex-wrap justify-center px-[5%] min-h-40"
+					id="upcoming"
+				>
+				</div>
 			</div>
-			<div onclick={`createNode(1, '${mapElite.src}', true)`}>
-				<Mapicon icon={mapElite.src} />
-			</div>
-			<div onclick={`createNode(2, '${mapEvent.src}', true)`}>
-				<Mapicon icon={mapEvent.src} />
-			</div>
-			<div onclick={`createNode(3, '${mapEventEnemy.src}', true)`}>
-				<Mapicon icon={mapEventEnemy.src} />
-			</div>
-			<div onclick={`addPotion('${potion.src}')`}>
-				<Mapicon icon={potion.src} />
+
+			<div class="w-[50%]">
+				<div class="bg-red-100">
+					<canvas id="potionchart"></canvas>
+				</div>
+
+				<p id="potchance">potion chance</p>
+				<p id="ev">ev</p>
+				<p id="efloors">efloors</p>
+				
 			</div>
 		</div>
-		<div class="flex flex-wrap justify-center px-[30%] min-h-40 content-start" id="past"></div>
-		Upcoming floors
-		<br>Include all floors up until the encounter you are interested in 
-		<div class="flex flex-row justify-center">
-			<div onclick={`createNode(0, '${mapEnemy.src}', false)`}>
-				<Mapicon icon={mapEnemy.src} />
-			</div>
-			<div onclick={`createNode(1, '${mapElite.src}', false)`}>
-				<Mapicon icon={mapElite.src} />
-			</div>
-			<div onclick={`createNode(2, '${mapEvent.src}', false)`}>
-				<Mapicon icon={mapEvent.src} />
-			</div>
-		</div>
-
-		<div class="flex flex-wrap justify-center px-[20%] min-h-40" id="upcoming"></div>
-
-		<p>dsfojla</p>
 	</body>
 </html>
 
@@ -68,6 +95,8 @@ import potion from "../assets/block_potion.png";
 	}
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script is:inline>
 	let pastlist = [];
 	let postlist = [];
@@ -79,14 +108,14 @@ import potion from "../assets/block_potion.png";
 		let place;
 		if (before) {
 			place = document.getElementById("past");
-			if(pastlist.length >= 13){
-				return
+			if (pastlist.length >= 13) {
+				return;
 			}
 			pastlist.push({ type, id, potion: false });
 		} else {
 			place = document.getElementById("upcoming");
-			if(postlist.length >= 13){
-				return
+			if (postlist.length >= 13) {
+				return;
 			}
 			postlist.push({ type, id, potion: false });
 		}
@@ -109,7 +138,7 @@ import potion from "../assets/block_potion.png";
 			place.appendChild(box);
 			console.log(futureProbabilities());
 			console.log(expectedFloors());
-
+			display();
 		}
 	}
 	function addPotion(src) {
@@ -155,7 +184,6 @@ import potion from "../assets/block_potion.png";
 				} else if (node.type == 0 || node.type == 3 || node.type == 1) {
 					i[1] -= 10;
 				} else {
-					
 					//WHY DID THEY CHANGE IT LITERALLY TEH DAY AFTER???
 					// let newdupe = [];
 					// newdupe.push(i[0]);
@@ -166,95 +194,235 @@ import potion from "../assets/block_potion.png";
 					// newdupe[0] *= 0.125;
 					// newdupe[1] += 10;
 					// dupe.push(newdupe);
-
-					
 				}
 			}
 			//chance = chance.concat(dupe);
 		}
+		if (chance[0][1] > 100) {
+			chance[0][1] = 100;
+		}
+		if (chance[0][2] > 100) {
+			chance[0][2] = 100;
+		}
+		if (chance[0][1] < 0) {
+			chance[0][1] = 0;
+		}
 		return chance[0];
 	}
 
-
 	function futureProbabilities() {
-		let total = []
-		let past = pastProbabilities()
-		if(past[1] < 0){past[1] = 0}
-		total.push(recursive(past,0,0))
-		return merge(total) 
-
+		let total = [];
+		let past = pastProbabilities();
+		if (past[1] < 0) {
+			past[1] = 0;
+		}
+		total.push(recursive(past, 0, 0));
+		return merge(total);
 	}
 	function recursive(chance, quantity, index) {
 		if (index >= postlist.length) {
-			return {[quantity]: chance[0]};
+			return { [quantity]: chance[0] };
 		}
 
 		let node = postlist[index];
-		let weight = chance[0]
-		let potionchance = chance[1]
-		let enemychance = chance[2]
+		let weight = chance[0];
+		let potionchance = chance[1];
+		let enemychance = chance[2];
 
 		switch (node.type) {
 			case 0:
-
-				let a = recursive([weight*potionchance/100, potionchance-10,enemychance ],quantity + 1, index+1)
-				let b = recursive([weight*(100-potionchance)/100, potionchance+10,enemychance ],quantity, index+1)
-				return merge([a,b])
+				let a = recursive(
+					[
+						(weight * potionchance) / 100,
+						potionchance - 10,
+						enemychance,
+					],
+					quantity + 1,
+					index + 1,
+				);
+				let b = recursive(
+					[
+						(weight * (100 - potionchance)) / 100,
+						potionchance + 10,
+						enemychance,
+					],
+					quantity,
+					index + 1,
+				);
+				return merge([a, b]);
 			case 1:
 				//let c = recursive([weight*0.125, potionchance+10,enemychance ],quantity + 1, index+1)
-				let d = recursive([weight*(potionchance+12.5)/100, potionchance-10,enemychance ],quantity + 1, index+1)
-				x = 87.5-potionchance
-				if (potionchance+12.5 > 100){x = 0}
-				let e = recursive([weight*(x)/100, potionchance+10,enemychance ],quantity, index+1)
-				return merge([d,e])
+				let d = recursive(
+					[
+						(weight * (potionchance + 12.5)) / 100,
+						potionchance - 10,
+						enemychance,
+					],
+					quantity + 1,
+					index + 1,
+				);
+				x = 87.5 - potionchance;
+				if (potionchance + 12.5 > 100) {
+					x = 0;
+				}
+				let e = recursive(
+					[(weight * x) / 100, potionchance + 10, enemychance],
+					quantity,
+					index + 1,
+				);
+				return merge([d, e]);
 			case 2:
-				let f = recursive([weight*(100-enemychance)/100, potionchance, enemychance + 10], quantity, index+1)
-				let g = recursive([weight*(enemychance/100)*potionchance/100, potionchance-10, 10],quantity + 1, index+1)
-				let h = recursive([weight*(enemychance/100)*(100-potionchance)/100, potionchance+10,10 ],quantity, index+1)
-				return merge([f,g,h])
+				let f = recursive(
+					[
+						(weight * (100 - enemychance)) / 100,
+						potionchance,
+						enemychance + 10,
+					],
+					quantity,
+					index + 1,
+				);
+				let g = recursive(
+					[
+						(weight * (enemychance / 100) * potionchance) / 100,
+						potionchance - 10,
+						10,
+					],
+					quantity + 1,
+					index + 1,
+				);
+				let h = recursive(
+					[
+						(weight * (enemychance / 100) * (100 - potionchance)) /
+							100,
+						potionchance + 10,
+						10,
+					],
+					quantity,
+					index + 1,
+				);
+				return merge([f, g, h]);
 		}
 	}
-	function merge(odds){
-		let total = {}
-		for(let i of odds){
-			for(let [quantity, chance] of Object.entries(i)){
-				if (total[quantity] === undefined){
-					total[quantity] = chance
-				}
-				else{
-					total[quantity] += chance
+	function merge(odds) {
+		let total = {};
+		for (let i of odds) {
+			for (let [quantity, chance] of Object.entries(i)) {
+				if (total[quantity] === undefined) {
+					total[quantity] = chance;
+				} else {
+					total[quantity] += chance;
 				}
 			}
 		}
-		return total
-	}	
+		return total;
+	}
 
-	function expectedFloors(){
-		let results = {}
+	function expectedFloors() {
+		let results = {};
 		let original = postlist;
-		let n = postlist.length
-		for (let i = 1; i < n+1; i++){
+		let n = postlist.length;
+		let totalev = 0;
+		for (let i = 1; i < n + 1; i++) {
 			postlist = original.slice(0, i);
-			let probs = futureProbabilities()
-			let ev = 0
-			for( let [quantity, chance] of Object.entries(probs)){
-				ev += quantity*chance/100
+			let probs = futureProbabilities();
+			let ev = 0;
+			for (let [quantity, chance] of Object.entries(probs)) {
+				ev += (quantity * chance) / 100;
 			}
-			ev = Math.floor(ev)
-			
-			if (results[ev] === undefined && ev != 0){
-				results[ev] = i
+			if (i == n) {
+				totalev = ev;
 			}
-			
+			ev = Math.floor(ev);
+
+			if (results[ev] === undefined && ev != 0) {
+				results[ev] = i;
+			}
 		}
 		postlist = original;
-		return results
+		return [results, totalev];
 	}
-	function display(){
+
+	let potionchart = null;
+	function display() {
 		//current potion chance
 		//potion distribution graph
 		//EV
-		//Expected first potion, etc. 
+		//Expected first potion, etc.
+		let quantity = [];
+		let chance = [];
+		let distribution = futureProbabilities();
+		for (let [q, c] of Object.entries(distribution)) {
+			quantity.push(q);
+
+			c = Number(c.toFixed(2));
+			chance.push(c);
+		}
+		let element = document.getElementById("potionchart");
+
+		if (potionchart === null) {
+			potionchart = new Chart(element, {
+				type: "bar",
+				data: {
+					labels: quantity,
+					datasets: [
+						{
+							label: "probability",
+							data: chance,
+							borderWidth: 1,
+						},
+					],
+				},
+				options: {
+					scales: {
+						y: {
+							beginAtZero: true,
+							ticks: {
+								callback: (value) => `${value}%`,
+							},
+						},
+					},
+					interaction: {
+						mode: "index",
+						intersect: false,
+					},
+					plugins: {
+						tooltip: {
+							callbacks: {
+								label: (item) => `${item.raw.toFixed(2)}%`,
+							},
+						},
+					},
+				},
+			});
+		} else {
+			potionchart.data.labels = quantity;
+			potionchart.data.datasets[0].data = chance;
+			potionchart.update();
+		}
+		let pastchance = pastProbabilities()[1]
+		let potiontext = pastchance.toFixed(1) + "%"
+		let potlabel = document.getElementById("potchance")
+		potlabel.textContent = "The current potion drop chance is " + potiontext
+		let evs = expectedFloors();
+		let efloor = evs[0]
+		let ev = evs[1]
+		let evlabel = document.getElementById("ev")
+		let efloorlabel = document.getElementById("efloors")
+		evlabel.textContent = "the expected number of potions is " + ev.toFixed(2)
+		if(efloor[1] === undefined){efloorlabel.textContent = "you are not expected to get a potion"}
+		else{
+			let text = ""
+			let i = 1
+			while (efloor[i] != undefined){
+				if(i == 1){
+					text += "you are expected to get dropped a potion after " + efloor[i] + " combats or events" + "<br>"
+				}
+				else{
+					text += "you are expected to get " + i + " potions after " + efloor[i] + " combats or events"+ "<br>"
+				}	
+				i += 1 
+			}
+			efloorlabel.innerHTML = text
+		}
 	}
-	
 </script>
