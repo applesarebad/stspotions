@@ -13,35 +13,38 @@ import potion from "../assets/block_potion.png";
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" type="image/png" href="/favicon.ico" />
 		<link
 			href="https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap"
 			rel="stylesheet"
 		/>
 		<title>STS2 Potion Calc</title>
+		<style>
+			body {
+				font-family: "Crimson Text", serif;
+			}
+		</style>
 	</head>
-	<style>
-		body {
-			font-family: "Crimson Text", serif;
-		}
-	</style>
 
 	<body class="bg-olive-400">
-		<h1 class="text-4xl text-center p-4">
+		<h1 class="text-2xl lg:text-4xl text-center p-4">
 			Slay the Spire 2 Potion Calculator
 		</h1>
-		<div class="flex flex-row">
-			<div class="w-[50%]">
-				<h2 class="text-2xl text-center">Past floors of the act</h2>
-				<p class="text-lg text-center">
+		<div class="flex flex-col lg:flex-row">
+			<div class="lg:w-[50%]">
+				<h2 class="text-xl lg:text-2xl text-center">
+					Past floors of the act
+				</h2>
+				<p class="lg:text-lg text-center">
 					Include past floors of only this act, and include when the
 					potions were dropped.<br /> You can ignore shops, treasures, and
 					rest sites. <br />Include events and whether or not they are
 					enemy events. Shop and treasure events should be treated as
 					normal events
 				</p>
-				<div class="select-none flex flex-row justify-center">
+				<div
+					class="select-none flex flex-wrap lg:flex-row justify-center"
+				>
 					<div onclick={`createNode(0, '${mapEnemy.src}', true)`}>
 						<Mapicon icon={mapEnemy.src} />
 					</div>
@@ -61,12 +64,14 @@ import potion from "../assets/block_potion.png";
 					</div>
 				</div>
 				<div
-					class="flex flex-wrap justify-center px-[5%] min-h-40 content-start select-none"
+					class="flex flex-wrap justify-center lg:px-[5%] min-h-20 lg:min-h-40 content-start select-none"
 					id="past"
 				>
 				</div>
-				<h2 class="text-2xl text-center">Upcoming floors of the act</h2>
-				<p class="text-lg text-center">
+				<h2 class="text-xl lg:text-2xl text-center">
+					Upcoming floors of the act
+				</h2>
+				<p class="lg:text-lg text-center">
 					Include all floors up until the encounter you are interested
 					in
 				</p>
@@ -83,11 +88,11 @@ import potion from "../assets/block_potion.png";
 				</div>
 
 				<div
-					class="flex flex-wrap justify-center px-[5%] content-start min-h-40 select-none"
+					class="flex flex-wrap justify-center lg:px-[5%] content-start min-h-20 lg:min-h-40 select-none"
 					id="upcoming"
 				>
 				</div>
-				<div class="flex justify-center">
+				<div class="flex justify-center pb-5">
 					<button
 						class="text-xl hover:text-red-500"
 						onclick="reset()"
@@ -97,14 +102,14 @@ import potion from "../assets/block_potion.png";
 				</div>
 			</div>
 
-			<div class="w-[50%]">
+			<div class="lg:w-[50%]">
 				<div class="h-[65vh] pr-4">
 					<canvas id="potionchart"></canvas>
 				</div>
 
-				<p class="text-lg text-center" id="potchance"></p>
-				<p class="text-lg text-center" id="ev"></p>
-				<p class="text-lg text-center" id="efloors"></p>
+				<p class="lg:text-lg text-center mt-2" id="potchance"></p>
+				<p class="lg:text-lg text-center" id="ev"></p>
+				<p class="lg:text-lg text-center mb-8 lg:mb-1" id="efloors"></p>
 			</div>
 		</div>
 	</body>
@@ -145,11 +150,12 @@ import potion from "../assets/block_potion.png";
 			postlist.push({ type, id, potion: false });
 		}
 		let box = document.createElement("div");
-		box.className = "w-24 h-20 flex items-center justify-center ";
+		box.className =
+			"h-13 w-19 lg:w-24 lg:h-20 flex items-center justify-center ";
 
 		let img = document.createElement("img");
 		img.src = src;
-		img.className = "h-16 hover:brightness-70";
+		img.className = "h-13 lg:h-16 hover:brightness-70";
 
 		box.addEventListener("click", () => {
 			box.remove();
@@ -178,7 +184,8 @@ import potion from "../assets/block_potion.png";
 
 		let img = document.createElement("img");
 		img.src = src;
-		img.className = "absolute -bottom-2 -right-2 h-13 hover:brightness-50";
+		img.className =
+			"absolute -bottom-2 -right-2 h-10 lg:h-13 hover:brightness-50";
 
 		img.addEventListener("click", (e) => {
 			e.stopPropagation();
@@ -186,8 +193,8 @@ import potion from "../assets/block_potion.png";
 			last.potion = false;
 			display();
 		});
-		display();
 		lastBox.appendChild(img);
+		display();
 	}
 	function pastProbabilities() {
 		let chance = [[100, 40, 10]];
@@ -288,7 +295,7 @@ import potion from "../assets/block_potion.png";
 					index + 1,
 					ev,
 				);
-				x = 87.5 - potionchance;
+				let x = 87.5 - potionchance;
 				if (potionchance + 12.5 > 100) {
 					x = 0;
 				}
@@ -465,7 +472,7 @@ import potion from "../assets/block_potion.png";
 						"<br>";
 				} else {
 					text +=
-						"you are expected to get " +
+						"You are expected to get " +
 						i +
 						" potions after " +
 						efloor[i] +
