@@ -27,9 +27,36 @@ import potion from "../assets/block_potion.png";
 	</head>
 
 	<body class="bg-olive-400">
+		
+		<div id = "helpDiv" class = "hidden fixed top-0 left-0 w-screen h-screen bg-black/50 z-50" onclick="hideHelp()">
+			<div class = "bg-olive-400 w-[80%] md:w-[50%] m-auto mt-[10%] p-4 rounded-lg">
+				<h1 class = "text-xl lg:text-2xl text-center">How to use</h1>
+				<p class = "lg:text-lg text-center">Add nodes based on your map <br>
+					Click the potion to attach a potion to the most recent node<br>
+					Click nodes or potions to remove them. 
+				</p>
+				<br>
+				<h1 class = "text-xl lg:text-2xl text-center">How does it work?</h1>
+				<p class = "lg:text-lg text-center">The chance for a potion at the start of the act is 40%. After each combat, the chance increases by 10% if no potion was dropped or decreases by 10% if a potion was dropped. Elites get a flat 12.5% bonus chance to gain a potion, which doesnt carry over anywhere. </p>
+				<br>
+				<p class = "lg:text-lg text-center">Question marks have a 10% base chance to be a combat. After a non-combat event, the chance increases by 10%. After a combat, it gets reset to 10%</p>
+				<br>
+				<h1 class = "text-xl lg:text-2xl text-center">Additional notes</h1>
+				<p class = "lg:text-lg text-center">This calculator ignores the chance for events to lead to a combat such as "Punch Off", as it is relatively insignificant. <br> However, if you are dropped a potion from such an event, you may still append a potion to an event node<br>
+					Slay the Spire 2 is still in early access and probabilities may change over time. I will update this website to the best of my ability.<br>
+					This calculator is up to date as of update v0.107.1
+				</p>
+			</div>
+
+		</div>
+
 		<h1 class="text-2xl lg:text-4xl text-center p-4">
 			Slay the Spire 2 Potion Calculator
 		</h1>
+		<div class = "flex justify-center">
+			<button id = "helpBtn" class = "md:top-5 md:left-10 md:fixed text-3xl hover:text-red-500" onclick="showHelp()">INFO</button>
+		</div>
+		
 		<div class="flex flex-col lg:flex-row">
 			<div class="lg:w-[50%]">
 				<h2 class="text-xl lg:text-2xl text-center">
@@ -168,6 +195,7 @@ import potion from "../assets/block_potion.png";
 		place.appendChild(box);
 		display();
 	}
+	
 	function addPotion(src) {
 		if (
 			pastlist.length == 0 ||
@@ -484,4 +512,17 @@ import potion from "../assets/block_potion.png";
 			efloorlabel.innerHTML = text;
 		}
 	}
+
+	function showHelp() {
+		let helpDiv = document.getElementById("helpDiv");
+		helpDiv.classList.remove("hidden");
+	}
+	function hideHelp() {
+		let helpDiv = document.getElementById("helpDiv");
+		helpDiv.classList.add("hidden");
+	}
+
+</script>
+<script is:inline define:vars={{ mapEnemy: mapEnemy }}>
+  createNode(0, mapEnemy.src, false);
 </script>
